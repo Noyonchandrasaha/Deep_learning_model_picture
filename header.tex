@@ -1,0 +1,70 @@
+% header.tex
+\usepackage{tikz}
+\usetikzlibrary{calc,3d,decorations.pathreplacing,shapes.multipart,positioning}
+
+% Colors used in the network diagram
+\definecolor{ConvColor}{RGB}{243,158,115}
+\definecolor{PoolColor}{RGB}{100,111,235}
+\definecolor{FcColor}{RGB}{120,135,198}
+\definecolor{SoftmaxColor}{RGB}{145,191,219}
+\definecolor{InputColor}{RGB}{140,255,140}
+
+% Allow the 'caption' key for pics to place text
+\tikzset{
+    pics/Box/.style args={#1}{code={
+        % Parse key-value options
+        \tikzset{#1}
+
+        % Retrieve keys using pgfkeysvalueof
+        \def\name{\pgfkeysvalueof{/tikz/name}}
+        \def\caption{\pgfkeysvalueof{/tikz/caption}}
+        \def\fillcolor{\pgfkeysvalueof{/tikz/fill}}
+        \def\height{\pgfkeysvalueof{/tikz/height}}
+        \def\width{\pgfkeysvalueof{/tikz/width}}
+        \def\depth{\pgfkeysvalueof{/tikz/depth}}
+
+        % Draw a 3D box
+        \draw[fill=\fillcolor,draw=black,opacity=0.7]
+          (0,0,0) coordinate (O)
+          -- ++(\width,0,0) coordinate (A)
+          -- ++(0,\height,0) coordinate (B)
+          -- ++(-\width,0,0) coordinate (C)
+          -- cycle;
+        \draw[fill=\fillcolor!90!black,draw=black,opacity=0.7]
+          (O) -- ++(0,0,\depth) coordinate (D)
+          -- ++(\width,0,0) coordinate (E)
+          -- ++(0,0,-\depth) coordinate (A)
+          -- cycle;
+        \draw[fill=\fillcolor!80!black,draw=black,opacity=0.7]
+          (A) -- ++(0,\height,0) coordinate (F)
+          -- ++(0,0,\depth) coordinate (G)
+          -- ++(0,-\height,0) coordinate (E)
+          -- cycle;
+
+        % Naming anchors for connection points
+        \path (O) coordinate (\name-west);
+        \path (A) coordinate (\name-east);
+
+        % Caption
+        \node at ($(O)!0.5!(B)+(0,0.5,0)$) {\small\textbf{\caption}};
+    }}
+}
+
+% RightBandedBox is a Box with a colored band on the right side
+\tikzset{
+    pics/RightBandedBox/.style args={#1}{code={
+        % Draw main Box
+        \tikzpic{Box={#1}}
+
+        % Retrieve keys again for dimensions and fill color
+        \tikzset{#1}
+        \def\fillcolor{\pgfkeysvalueof{/tikz/fill}}
+        \def\height{\pgfkeysvalueof{/tikz/height}}
+        \def\depth{\pgfkeysvalueof{/tikz/depth}}
+        \def\name{\pgfkeysvalueof{/tikz/name}}
+
+        % Draw right band with stronger color
+        \draw[fill=\fillcolor!60!black,draw=black,opacity=0.8]
+          (\name-east) ++(0,0,0) -- ++(0, \height, 0) -- ++(0,0, \depth) -- ++(0, -\height, 0) -- cycle;
+    }}
+}
